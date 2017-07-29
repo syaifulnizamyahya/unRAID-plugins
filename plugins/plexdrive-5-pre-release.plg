@@ -1,0 +1,129 @@
+<?xml version='1.0' standalone='yes'?>
+
+<!-- PLUGIN DEFINITIONS -->
+<!DOCTYPE PLUGIN [
+	<!ENTITY name      "plexdrive">
+	<!ENTITY author    "syaifulnizamyahya">
+	<!ENTITY version   "2017.7.29">
+	<!ENTITY pdversion   "5.0.0-beta.1501232161">
+	<!ENTITY mongoversion   "3.4.6">
+	<!ENTITY repo      "https://github.com/dweidenfeld/plexdrive/releases/download">
+	<!ENTITY pluginURL "https://raw.githubusercontent.com/&author;/unRAID-plugins/master/plugins/plexdrive-5-pre-release.plg">
+	<!ENTITY plugin    "/boot/config/plugins/&name;">
+	<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+]>
+
+<PLUGIN  name="&name;"
+		 author="&author;"
+		 version="&version;"
+		 pluginURL="&pluginURL;"
+>
+
+
+<CHANGES>
+###5.0.0-beta.1501232161
+- see https://github.com/dweidenfeld/plexdrive
+
+###4.0.0
+- several bugfixes
+- specification of root node id
+- switch to MongoDB
+- deletion of shared files
+- improved debug logging
+
+###3.0.0
+**Warning: You should delete the local cache file first (~/.plexdrive/cache), otherwise, it could be that items are missing/duplicated in your mount. This is necessary because of the upgrade to API v3**
+
+- upgrade to API v3
+- added download speed limit
+- bugfixes in buffer
+- developer documentation
+- minor bugfixes
+</CHANGES>
+
+
+<FILE Name="&emhttp;/README.md">
+<INLINE>
+**plexdrive**
+
+Forked from https://github.com/Starbix/unRAID-plugins
+
+Plexdrive allows you to mount your Google Drive account as fuse filesystem.
+The project is comparable to projects like [rclone](https://rclone.org/) or [node-gdrive-fuse](https://github.com/thejinx0r/node-gdrive-fuse), but optimized for media streaming e.g. with plex ;)
+</INLINE>
+</FILE>
+
+
+<FILE Name="&plugin;/install/plexdrive-linux-amd64">
+<URL>&repo;/&pdversion;/plexdrive-linux-amd64</URL>
+<MD5>cd99e586962e09b88c26202a40a681b3</MD5>
+</FILE>
+
+<FILE Name="&plugin;/install/mongodb-linux-x86_64-&mongoversion;.tgz">
+<URL>http://downloads.mongodb.org/linux/mongodb-linux-x86_64-&mongoversion;.tgz</URL>
+<MD5>a49c20e50ab9d34d4700e1bc31a130b1</MD5>
+</FILE>
+
+<!--
+Install script.
+-->
+<FILE Run="/bin/bash" Method="install">
+<INLINE>
+
+	echo "+=============================================================================="
+	echo "| Installing plexdrive and mongoDB"
+	echo "+=============================================================================="
+	cp &plugin;/install/plexdrive-linux-amd64 /usr/sbin/plexdriveorig
+	chown root:root /usr/sbin/plexdriveorig
+	chmod 777 /usr/sbin/plexdriveorig
+	tar -zxvf &plugin;/install/mongodb-linux-x86_64-&mongoversion;.tgz -C &plugin;/install
+	cp &plugin;/install/mongodb-linux-x86_64-&mongoversion;/bin/* /usr/bin
+	echo ""
+	echo "-----------------------------------------------------------"
+	echo " &name; and mongoDB have been installed."
+	echo "-----------------------------------------------------------"
+	echo ""
+
+</INLINE>
+</FILE>
+
+<!-- PLUGIN REMOVAL SCRIPT -->
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+echo "+=============================================================================="
+echo "| Uninstalling plexdrive and mongoDB"
+echo "+=============================================================================="
+# Remove plugin related files
+rm -rf /usr/local/emhttp/plugins/&name;
+rm -rf /boot/config/plugins/&name;
+rm -rf /usr/sbin/plexdrive
+rm -rf /usr/sbin/plexdriveorig
+rm -rf /usr/bin/mongo
+rm -rf /usr/bin/mongod
+rm -rf /usr/bin/mongodump
+rm -rf /usr/bin/mongoexport
+rm -rf /usr/bin/mongofiles
+rm -rf /usr/bin/mongoimport
+rm -rf /usr/bin/mongooplog
+rm -rf /usr/bin/mongoperf
+rm -rf /usr/bin/mongoreplay
+rm -rf /usr/bin/mongorestore
+rm -rf /usr/bin/mongos
+rm -rf /usr/bin/mongostat
+rm -rf /usr/bin/mongotop
+rm -rf /usr/bin/bsondump
+
+echo ""
+echo "plexdrive and mongoDB uninstalled. plexdrive and mongoDB will remain until your next system reboot."
+</INLINE>
+</FILE>
+<FILE Name="/usr/sbin/plexdrive" Mode="0755">
+<INLINE>
+#!/bin/bash
+config=/mnt/user/appdata/plexdrive
+plexdriveorig -c $config "$@";
+
+</INLINE>
+</FILE>
+
+</PLUGIN>
