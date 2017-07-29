@@ -44,9 +44,13 @@
 
 <FILE Name="&emhttp;/README.md">
 <INLINE>
-**plexdrive**
+**plexdrive-5-pre-release**
 
 Forked from https://github.com/Starbix/unRAID-plugins
+
+IMPORTANT: This plugins contains plexdrive pre-release builds. 
+This is not an official patch, so you should not deploy this update to a production environment.
+Use this at your own risk.
 
 Plexdrive allows you to mount your Google Drive account as fuse filesystem.
 The project is comparable to projects like [rclone](https://rclone.org/) or [node-gdrive-fuse](https://github.com/thejinx0r/node-gdrive-fuse), but optimized for media streaming e.g. with plex ;)
